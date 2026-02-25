@@ -34,24 +34,13 @@ public class CANDriveSubsystem extends SubsystemBase {
     // set up differential drive class
    drive = new DifferentialDrive(leftLeader, rightLeader);
 
-    // Inversion
-    leftLeader.setInverted(false);
-    rightLeader.setInverted(true);
-
-    // Followers
-    leftFollower.follow(leftLeader);
-    rightFollower.follow(rightLeader);
-
-    leftFollower.setInverted(InvertType.FollowMaster);
-    rightFollower.setInverted(InvertType.FollowMaster);
-
     // Create the configuration to apply to motors. Voltage compensation
     // helps the robot perform more similarly on different
     // battery voltages (at the cost of a little bit of top speed on a fully charged
     // battery). The current limit helps prevent tripping
     // breakers.
     leftLeader.enableVoltageCompensation(true);
-    leftLeader.configVoltageCompSaturation(12);
+    leftLeader.configVoltageCompSaturation(6);
     leftLeader.enableCurrentLimit(true);
     leftLeader.configContinuousCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
     rightLeader.enableCurrentLimit(true);
@@ -64,8 +53,19 @@ public class CANDriveSubsystem extends SubsystemBase {
     
     leftLeader.setNeutralMode(NeutralMode.Brake);
     rightLeader.setNeutralMode(NeutralMode.Brake);
-    leftFollower.setNeutralMode(NeutralMode.Brake);
-    rightFollower.setNeutralMode(NeutralMode.Brake);
+
+    
+    // Inversion
+    leftLeader.setInverted(false);
+    rightLeader.setInverted(true);
+
+    // Followers
+    leftFollower.follow(leftLeader);
+    rightFollower.follow(rightLeader);
+
+    leftFollower.setInverted(InvertType.FollowMaster);
+    rightFollower.setInverted(InvertType.FollowMaster);
+
   }
 
   @Override
