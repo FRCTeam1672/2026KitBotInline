@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
@@ -24,47 +25,43 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final DifferentialDrive drive;
 
   public CANDriveSubsystem() {
-    // create brushed motors for drive
     leftLeader = new WPI_TalonSRX(LEFT_LEADER_ID);
-    leftFollower = new WPI_VictorSPX(LEFT_FOLLOWER_ID);
     rightLeader = new WPI_TalonSRX(RIGHT_LEADER_ID);
+    leftFollower = new WPI_VictorSPX(LEFT_FOLLOWER_ID);
     rightFollower = new WPI_VictorSPX(RIGHT_FOLLOWER_ID);
 
-    // Factory reset before applying any configuration
+    // Reset FIRST
     leftLeader.configFactoryDefault();
-    leftFollower.configFactoryDefault();
     rightLeader.configFactoryDefault();
+    leftFollower.configFactoryDefault();
     rightFollower.configFactoryDefault();
 
-    // set up differential drive class
+    // THEN create drive
     drive = new DifferentialDrive(leftLeader, rightLeader);
-    drive.setRightSideInverted(true);
-
-    // Create the configuration to apply to motors. Voltage compensation
-    // helps the robot perform more similarly on different
-    // battery voltages (at the cost of a little bit of top speed on a fully charged
-    // battery). The current limit helps prevent tripping
-    // breakers.
-    leftLeader.enableVoltageCompensation(true);
-    leftLeader.configVoltageCompSaturation(12);
-    leftLeader.enableCurrentLimit(true);
-    leftLeader.configContinuousCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
-    rightLeader.enableCurrentLimit(true);
-    rightLeader.configContinuousCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
-    rightLeader.enableVoltageCompensation(true);
-    rightLeader.configVoltageCompSaturation(12);
-    // Set configuration to follow each leader and then apply it to corresponding
-    // follower. Resetting in case a new controller is swapped
-    // in and persisting in case of a controller reset due to breaker trip
-    
-    leftLeader.setNeutralMode(NeutralMode.Brake);
-    rightLeader.setNeutralMode(NeutralMode.Brake);
 
     // Followers
     leftFollower.follow(leftLeader);
     rightFollower.follow(rightLeader);
 
-  }
+    // Inversion (ONLY ONE SIDE)
+    leftLeader.setInverted(false);
+    rightLeader.setInverted(true);
+    leftFollower.setInverted(InvertType.FollowMaster);
+    rightFollower.setInverted(InvertType.FollowMaster);
+
+    // Neutral mode
+    leftLeader.setNeutralMode(NeutralMode.Brake);
+    rightLeader.setNeutralMode(NeutralMode.Brake);
+    leftFollower.setNeutralMode(NeutralMode.Brake);
+    rightFollower.setNeutralMode(NeutralMode.Brake);
+
+    // Deadband
+    leftLeader.configNeutralDeadband(0.04);
+    rightLeader.configNeutralDeadband(0.04);
+
+    // Disable voltage comp
+    leftLeader.enableVoltageCompensation(false);
+    rightLeader.enableVoltageCompensation(false);  }
 
   @Override
   public void periodic() {
@@ -73,6 +70,6 @@ public class CANDriveSubsystem extends SubsystemBase {
   // Command factory to create command to drive the robot with joystick inputs.
   public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation) {
     return this.run(
-    () -> drive.arcadeDrive(-xSpeed.getAsDouble(), zRotation.getAsDouble()));
+    () -> drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble()));
   }
 }
