@@ -32,7 +32,18 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightFollower = new WPI_VictorSPX(RIGHT_FOLLOWER_ID);
 
     // set up differential drive class
-    drive = new DifferentialDrive(leftLeader, rightLeader);
+   drive = new DifferentialDrive(leftLeader, rightLeader);
+
+    // Inversion
+    leftLeader.setInverted(false);
+    rightLeader.setInverted(true);
+
+    // Followers
+    leftFollower.follow(leftLeader);
+    rightFollower.follow(rightLeader);
+
+    leftFollower.setInverted(InvertType.FollowMaster);
+    rightFollower.setInverted(InvertType.FollowMaster);
 
     // Create the configuration to apply to motors. Voltage compensation
     // helps the robot perform more similarly on different
@@ -51,11 +62,6 @@ public class CANDriveSubsystem extends SubsystemBase {
     // follower. Resetting in case a new controller is swapped
     // in and persisting in case of a controller reset due to breaker trip
     
-    rightLeader.setInverted(true);
-    leftFollower.follow(leftLeader);
-    rightFollower.follow(rightLeader);
-    rightFollower.setInverted(InvertType.FollowMaster);
-    
     leftLeader.setNeutralMode(NeutralMode.Brake);
     rightLeader.setNeutralMode(NeutralMode.Brake);
     leftFollower.setNeutralMode(NeutralMode.Brake);
@@ -69,6 +75,6 @@ public class CANDriveSubsystem extends SubsystemBase {
   // Command factory to create command to drive the robot with joystick inputs.
   public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation) {
     return this.run(
-        () -> drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble()));
+    () -> drive.arcadeDrive(-xSpeed.getAsDouble(), zRotation.getAsDouble()));
   }
 }
