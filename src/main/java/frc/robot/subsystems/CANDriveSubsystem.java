@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
-import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
@@ -31,8 +30,15 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightLeader = new WPI_TalonSRX(RIGHT_LEADER_ID);
     rightFollower = new WPI_VictorSPX(RIGHT_FOLLOWER_ID);
 
+    // Factory reset before applying any configuration
+    leftLeader.configFactoryDefault();
+    leftFollower.configFactoryDefault();
+    rightLeader.configFactoryDefault();
+    rightFollower.configFactoryDefault();
+
     // set up differential drive class
-   drive = new DifferentialDrive(leftLeader, rightLeader);
+    drive = new DifferentialDrive(leftLeader, rightLeader);
+    drive.setRightSideInverted(true);
 
     // Create the configuration to apply to motors. Voltage compensation
     // helps the robot perform more similarly on different
@@ -40,7 +46,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     // battery). The current limit helps prevent tripping
     // breakers.
     leftLeader.enableVoltageCompensation(true);
-    leftLeader.configVoltageCompSaturation(6);
+    leftLeader.configVoltageCompSaturation(12);
     leftLeader.enableCurrentLimit(true);
     leftLeader.configContinuousCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
     rightLeader.enableCurrentLimit(true);
@@ -54,17 +60,9 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftLeader.setNeutralMode(NeutralMode.Brake);
     rightLeader.setNeutralMode(NeutralMode.Brake);
 
-    
-    // Inversion
-    leftLeader.setInverted(false);
-    rightLeader.setInverted(true);
-
     // Followers
     leftFollower.follow(leftLeader);
     rightFollower.follow(rightLeader);
-
-    leftFollower.setInverted(InvertType.FollowMaster);
-    rightFollower.setInverted(InvertType.FollowMaster);
 
   }
 
