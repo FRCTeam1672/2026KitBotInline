@@ -44,8 +44,8 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightFollower.follow(rightLeader);
 
     // Inversion (ONLY ONE SIDE)
-    leftLeader.setInverted(false);
-    rightLeader.setInverted(true);
+    leftLeader.setInverted(true);
+    rightLeader.setInverted(false);
     leftFollower.setInverted(InvertType.FollowMaster);
     rightFollower.setInverted(InvertType.FollowMaster);
 
@@ -55,21 +55,17 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftFollower.setNeutralMode(NeutralMode.Brake);
     rightFollower.setNeutralMode(NeutralMode.Brake);
 
-    // Deadband
-    leftLeader.configNeutralDeadband(0.04);
-    rightLeader.configNeutralDeadband(0.04);
-
-    // Disable voltage comp
-    leftLeader.enableVoltageCompensation(false);
-    rightLeader.enableVoltageCompensation(false);  }
+    leftLeader.configVoltageCompSaturation(12);
+    rightLeader.configVoltageCompSaturation(12);
+  }
 
   @Override
   public void periodic() {
   }
 
-  // Command factory to create command to drive the robot with joystick inputs.
-  public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation) {
+  // Command factory to create command to tank drive the robot.
+  public Command driveArcade(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
     return this.run(
-    () -> drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble()));
+        () -> drive.arcadeDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble()));
   }
 }

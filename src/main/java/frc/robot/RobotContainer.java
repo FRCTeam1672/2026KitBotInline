@@ -6,7 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static frc.robot.Constants.ControllerConstants.*;
@@ -28,7 +28,7 @@ public class RobotContainer {
   private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem();
 
   // The controller
-  private final CommandPS5Controller Controller = new CommandPS5Controller(
+  private final CommandGenericHID Controller = new CommandGenericHID(
       CONTROLLER_PORT);
 
   // The autonomous chooser
@@ -60,20 +60,20 @@ public class RobotContainer {
   private void configureBindings() {
 
     // While the left bumper on the controller is held, intake Fuel
-    Controller.L1()
+    Controller.button(5)
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
     // While the left trigger on the controller is held, intake to the hopper
-    Controller.L2()
+    Controller.button(1)
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.hopper(), () -> ballSubsystem.stop()));
     // While the right bumper on the controller is held, spin up for 1
     // second, then launch fuel. When the button is released, stop.
-    Controller.R1()
+    Controller.button(6)
         .whileTrue(ballSubsystem.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
             .andThen(ballSubsystem.launchCommand())
             .finallyDo(() -> ballSubsystem.stop()));
     // While the cross button is held on the controller, eject fuel back out
     // the intake
-    Controller.cross()
+    Controller.button(14)
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
     // Set the default command for the drive subsystem to the command provided by
@@ -85,8 +85,8 @@ public class RobotContainer {
     // are also scaled down so the rotation is more easily controllable.
     driveSubsystem.setDefaultCommand(
         driveSubsystem.driveArcade(
-            () -> -Controller.getLeftY() * DRIVE_SCALING,
-            () -> -Controller.getRightX() * ROTATION_SCALING));
+            () -> -Controller.getRawAxis(1) * DRIVE_SCALING,
+            () -> -Controller.getRawAxis(2) * ROTATION_SCALING));
   }
 
   /**
